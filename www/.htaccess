@@ -1,0 +1,33 @@
+AddDefaultCharset utf-8
+Options +FollowSymLinks
+
+# Запрет выдачи листинга пустого каталога
+Options -Indexes
+# При обращении к каталогу открывается файл index.php
+DirectoryIndex index.php
+#включаем mod_rewrite
+RewriteEngine On
+#Устанавливает базовый URL для преобразований в контексте каталога
+RewriteBase /
+
+#>для системы службы поддержки osticket
+RewriteRule ^(support.*)$ $1 [L,QSA]
+#<
+RewriteRule ^([a-z]+)/([a-z]+)/([0-9]+)/$ /?controller=$1&action=$2&id=$3&%{QUERY_STRING} [NS,L]
+RewriteRule ^([a-z]+)/([a-z]+)/$ /?controller=$1&action=$2&%{QUERY_STRING} [NS,L]
+RewriteRule ^([a-z]+)/([0-9]+)/$ /?controller=$1&id=$2&%{QUERY_STRING} [NS,L]
+RewriteRule ^([a-z]+)/$ /?controller=$1&%{QUERY_STRING} [NS,L]
+
+#RewriteCond - определяет условие при котором происходит преобразование
+RewriteCond $1 !^(index\.php)
+
+RewriteCond %{REQUEST_URI} !\.(css│js│jpg│gif)$
+
+#>Полный путь в файловой системе сервера к файлу или скрипту соответствующим этому запросу.
+#все существующие файлы не будут обрабатываться регулярным выражением
+RewriteCond %{REQUEST_FILENAME} !-f
+# все существующие папки не будут обрабатываться регулярным выражением
+RewriteCond %{REQUEST_FILENAME} !-d
+#<
+#при любой строке запроса будет открывать index.php, добавляя её (строку запроса) в $_SERVER['REQUEST_URI']
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]
